@@ -6,11 +6,11 @@ from multipledispatch import dispatch
 from forbiddenfruit import curse
 
 
-def prepare() -> dict:
+def prepare() -> tuple:
     # stripMargin from Scala
     curse(str, "_", lambda txt: sub("\n[ ]*\|", "\n", txt))
 
-    info = {"to": {}}
+    info: dict = {"to": {}}
     s1 = "１２３４５６７８９"
     s2 = "一二三四五六七八九"
     for a, b in zip(s1, range(1, 10)):
@@ -93,7 +93,7 @@ def from_sec(sec: str, time: int) -> str:
     return "{:>2}:{:02}/{:02}:{:02}:{:02}".format(M, S, h, m, s)
 
 
-def maybe_replace(info: dict, game: dict, line: str) -> None:
+def maybe_replace(info: dict, game: dict, line: str) -> str:
     from_, to_, piece, sec = unclench(line)
     c = info["piece"][piece]
     p = game["promo"]
@@ -104,6 +104,13 @@ def maybe_replace(info: dict, game: dict, line: str) -> None:
     else:  # first time
         p[to_] = piece
     return c
+
+
+def maybe_old_promo_cleanup(game: dict, line: str) -> None:
+    from_, to_, piece, sec = unclench(line)
+    p = game["promo"]
+    if to_ in p:
+        del p[to_]
 
 
 def move_and_time(info: dict, game: dict, line: str) -> None:
@@ -124,6 +131,8 @@ def move_and_time(info: dict, game: dict, line: str) -> None:
     # promo stuff
     if "成" in c:
         c = maybe_replace(info, game, line)
+    else:
+        maybe_old_promo_cleanup(game, line)
 
     bcd = f"{b}{c}打" if "00" == from_ else f"{b}{c}({d})"
     if 8 == len(bcd) or "00" == from_:
@@ -201,7 +210,7 @@ def main() -> int:
     game, info = prepare()
     iterate_lines(fn, game, info)
 
-    fn = Path(fn).with_suffix(".x.kif")
+    fn = str(Path(fn).with_suffix(".x.kif"))
     write(fn, game)
     return 0
 
