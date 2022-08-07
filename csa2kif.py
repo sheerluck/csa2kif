@@ -33,6 +33,7 @@ def prepare() -> tuple:
 
     info["end"] = {
         "%TORYO":        "投了",
+        "%TSUMI":        "詰み",
         "%CHUDAN":       "中断",
         "%SENNICHITE":   "千日手",
         "%TIME_UP":      "切れ負け",
@@ -74,7 +75,8 @@ def unclench(s: str) -> list[str]:
 @dispatch(str, dict, str)
 def from_sec(s: str, game: dict, line: str) -> int:
     time = game["times"][line[0]]
-    time += int(s)
+    if s:
+        time += int(s)
     game["times"][line[0]] = time
     return time
 
@@ -88,6 +90,8 @@ def from_sec(sec: int) -> tuple:
 
 @dispatch(str, int)
 def from_sec(sec: str, time: int) -> str:
+    if not sec:
+        sec = "0"
     _, M, S = from_sec(int(sec))
     h, m, s = from_sec(time)
     return "{:>2}:{:02}/{:02}:{:02}:{:02}".format(M, S, h, m, s)
@@ -158,7 +162,12 @@ def game_over(info: dict, game: dict, line: str) -> None:
     game["moves"].append(move)
 
     winner = "先手" if game["was"] == "+" else "後手"
-    result = "千日手" if "SEN" in line else f"{winner}の勝ち"
+    if "SEN" in line:
+        result = "千日手"
+    elif "TSUMI" in line:
+        result = bcd
+    else:
+        result = f"{winner}の勝ち"
     move = f"まで{a-1}手で{result}\n\n"
     game["moves"].append(move)
 
