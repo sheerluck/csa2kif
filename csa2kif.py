@@ -54,6 +54,8 @@ def maybe_time(game: dict, line: str) -> None:
         game["start"] = line.removeprefix(start)
     elif line.startswith(end):
         game["end"] = line.removeprefix(end)
+    elif line.startswith("$SITE:"):
+        game["url"] = line.removeprefix("$SITE:")
     else:
         pass  # for now
 
@@ -196,16 +198,19 @@ def iterate_lines(fn: str, game: dict, info: dict) -> None:
 def write(fn: str, game: dict) -> None:
 
     with open(fn, "w") as kif:
+        url = "https://syougi.qinoa.com/ja/game"
+        if site := game.get("url"):
+            url = site
         header = f"""
             |# ---- csa2kif.py ----
             |棋戦：Casual Blitz game
+            |場所：{url}
             |開始日時：{game["start"]}
             |終了日時：{game["end"]}
+            |持ち時間：5分秒読み10秒
+            |手合割：平手
             |先手：{game["sente"]}
             |後手：{game["gote"]}
-            |場所：https://syougi.qinoa.com/ja/game
-            |持ち時間：5分+10秒
-            |手合割：平手
             |手数----指手---------消費時間--
             |"""._()
         kif.write(header[1:])
