@@ -56,6 +56,8 @@ def maybe_time(game: dict, line: str) -> None:
         game["end"] = line.removeprefix(end)
     elif line.startswith("$SITE:"):
         game["url"] = line.removeprefix("$SITE:")
+    elif line.startswith("$EVENT:ぴよ将棋"):
+        game["url"] = "https://studiok-i.net/ps/"
     else:
         pass  # for now
 
