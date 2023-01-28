@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+
+lishogi/
+qinoa/
+studiok-i.net_ps/
