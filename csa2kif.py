@@ -44,6 +44,8 @@ def prepare() -> tuple:
     game = {"moves": [],
             "times": {"+": 0, "-": 0},
             "promo": {},  # 33 -> "RY"
+            "start": "?",
+            "end":   "?",
             "n": 0}
     return game, info
 
@@ -158,6 +160,8 @@ def move_and_time(info: dict, game: dict, line: str) -> None:
 def game_over(info: dict, game: dict, line: str) -> None:
     game["n"] += 1
     a = game["n"]
+    if "," in line:
+        line = line.split(",")[0]
     bcd = info["end"][line]
     del game["times"][game["was"]]
     time = list(game["times"].values())[0]
