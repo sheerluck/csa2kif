@@ -1,6 +1,7 @@
 import sys
 from re import sub
 from math import ceil
+from time import strptime
 from pathlib import Path
 from multipledispatch import dispatch
 from forbiddenfruit import curse
@@ -46,6 +47,7 @@ def prepare() -> tuple:
             "promo": {},  # 33 -> "RY"
             "start": "?",
             "end":   "?",
+            "time": "00:05+10",
             "n": 0}
     return game, info
 
@@ -60,6 +62,8 @@ def maybe_time(game: dict, line: str) -> None:
         game["url"] = line.removeprefix("$SITE:")
     elif line.startswith("$EVENT:ぴよ将棋"):
         game["url"] = "https://studiok-i.net/ps/"
+    elif line.startswith("$TIME_LIMIT:"):
+        game["time"] = line.removeprefix("$TIME_LIMIT:")
     else:
         pass  # for now
 
@@ -200,10 +204,17 @@ def iterate_lines(fn: str, game: dict, info: dict) -> None:
                 case _:
                     print(line)
 
+def parse_time(s: str) -> tuple:
+    # "00:05+10" -> 5, 10
+    a, b = s.split("+")
+    t, b = strptime(a, "%H:%M"), strptime(b, "%S")
+    return t.tm_hour * 60 + t.tm_min, b.tm_sec
+
 
 def write(fn: str, game: dict) -> None:
 
     with open(fn, "w") as kif:
+        hm, byoyomi = parse_time(game["time"])
         url = "https://syougi.qinoa.com/ja/game"
         if site := game.get("url"):
             url = site
@@ -213,7 +224,7 @@ def write(fn: str, game: dict) -> None:
             |場所：{url}
             |開始日時：{game["start"]}
             |終了日時：{game["end"]}
-            |持ち時間：5分秒読み10秒
+            |持ち時間：{hm}分秒読み{byoyomi}秒
             |手合割：平手
             |先手：{game["sente"]}
             |後手：{game["gote"]}
