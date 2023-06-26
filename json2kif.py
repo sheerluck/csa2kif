@@ -23,7 +23,7 @@ def prepare() -> tuple:
                 m = f"十{s2[-1+n%10]}"
             x = f"{a}{n}"
             fam = f"{b}{m}"
-            w = 12 if w=="c" else 11 if w=="b" else 10 if w=="a" else w
+            w = {"c": 12, "b": 11, "a": 10}.get(w, w)
             madx = f"{q}{w}"
             info["to"][madx] = fam
 
