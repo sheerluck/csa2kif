@@ -35,18 +35,22 @@ def prepare() -> tuple:
         "Kr": "麒麟",  "Ph": "鳳凰",  "L":  "香車",
         "FL": "猛豹",  "CG": "銅将",  "S":  "銀将",
         "G":  "金将",  "K":  "玉将",  "DE": "醉象",
-        "xx": "xx",
+
         # remember 成 for some reason
-        "HF+": "龍馬成", "+B": "角行成", "SE+": "龍王成",
-        "SM+": "銅将成", "+R": "飛車成", "R+":  "金将成",
-        "FO+": "竪行成",
+        "HF+": "龍馬成", "+B":  "角行成", "SE+": "龍王成",
+        "SM+": "銅将成", "+R":  "飛車成", "R+":  "金将成",
+        "FO+": "竪行成", "B+":  "猛豹成", "+P":  "歩兵成",
+        "FK+": "鳳凰成", "VM+": "銀将成", "Ln+": "麒麟成",
+        "WH+": "香車成", "W+":  "反車成",
     }
 
     info["promo"] = {
         # todo if actually needed
-        "HF+": "角鷹",  "+B": "龍馬",   "SE+": "飛鷲",
-        "SM+": "奔猪",  "+R": "龍王",   "R+":  "金飛車",
-        "FO+": "飛牛",
+        "HF+": "角鷹",   "+B":  "龍馬",   "SE+": "飛鷲",
+        "SM+": "奔猪",   "+R":  "龍王",   "R+":  "金飛車",
+        "FO+": "飛牛",   "B+":  "小角",   "+P":  "金将",
+        "FK+": "奔王",   "VM+": "竪行",   "Ln+": "獅子",
+        "WH+": "白駒",   "W+":  "鯨鯢",
     }
 
     info["end"] = {
@@ -138,12 +142,13 @@ def from_sec(sec: str, time: int) -> str:
 
 
 def maybe_replace(info: dict, game: dict, line: tuple) -> str:
-    from_, to_, piece = line
+    from_, to_, piece, Lnto2 = line
     c = info["piece"][piece]
     p = game["promo"]
     if pr := p.get(from_):
-        del p[from_]
-        p[to_] = pr
+        if from_ != Lnto2:
+            del p[from_]
+            p[to_] = pr
         c = info["promo"][piece]
     else:  # first time
         p[to_] = piece
@@ -161,7 +166,7 @@ def move_and_time(info: dict, game: dict, line: str) -> None:
     game["n"] += 1
     ah = unclench(line)
     #time = from_sec(sec, game, line)
-    if ah[0] == "Ln":
+    if ah[0].startswith("Ln"):
         #special
         if (how := line.count('-')) == 1:
             piece, from_, to_ = ah
@@ -183,7 +188,7 @@ def move_and_time(info: dict, game: dict, line: str) -> None:
 
     # promo stuff
     if "成" in c:
-        line = from_, to_, piece
+        line = from_, to_, piece, Lnto2
         c = maybe_replace(info, game, line)
     else:
         maybe_old_promo_cleanup(game, to_)
