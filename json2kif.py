@@ -41,16 +41,18 @@ def prepare() -> tuple:
         "SM+": "銅将成", "+R":  "飛車成", "R+":  "金将成",
         "FO+": "竪行成", "B+":  "猛豹成", "+P":  "歩兵成",
         "FK+": "鳳凰成", "VM+": "銀将成", "Ln+": "麒麟成",
-        "WH+": "香車成", "W+":  "反車成",
+        "WH+": "香車成", "W+":  "反車成", "FBo+":"横行成",
+        "FS+": "盲虎成",
     }
 
     info["promo"] = {
         # todo if actually needed
         "HF+": "角鷹",   "+B":  "龍馬",   "SE+": "飛鷲",
-        "SM+": "奔猪",   "+R":  "龍王",   "R+":  "金飛車",
+        "SM+": "横行",   "+R":  "龍王",   "R+":  "金飛車",
         "FO+": "飛牛",   "B+":  "小角",   "+P":  "金将",
         "FK+": "奔王",   "VM+": "竪行",   "Ln+": "獅子",
-        "WH+": "白駒",   "W+":  "鯨鯢",
+        "WH+": "白駒",   "W+":  "鯨鯢",   "FBo+":"奔猪",
+        "FS+": "飛鹿",
     }
 
     info["end"] = {
@@ -147,6 +149,8 @@ def maybe_replace(info: dict, game: dict, line: tuple) -> str:
     p = game["promo"]
     if pr := p.get(from_):
         if from_ != Lnto2:
+            if piece == "Ln+" and to_ != Lnto2 and Lnto2 != -1:
+                to_ = Lnto2
             del p[from_]
             p[to_] = pr
         c = info["promo"][piece]
